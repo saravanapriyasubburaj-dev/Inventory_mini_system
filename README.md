@@ -10,7 +10,7 @@ The project also handles stock updates safely when multiple orders are placed at
 - Composer
 - MySQL or SQLite
 - Node.js and NPM
-- Laravel Herd
+- Laravel Herd / Xampp
 
 ## Setup
 
