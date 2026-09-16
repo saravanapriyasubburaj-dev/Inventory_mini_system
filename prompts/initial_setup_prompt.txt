@@ -1,0 +1,30 @@
+--- PROMPT 1: DATABASE & SEEDERS ---
+Create Laravel 13 Models, Migrations, and Factories for Customer, Product, Order, and OrderItem. 
+- The orders table must include subtotal, tax_total, and grand_total. 
+- The order_items table needs product_id, quantity, unit_price, and tax_amount.
+- Create a DatabaseSeeder that manually seeds 10 realistic retail products (e.g., Dove Soap, Parle-G, Colgate) and uses the ProductFactory to generate 15 additional random items. Seed 10 random customers.
+
+--- PROMPT 2: BUSINESS LOGIC & CONCURRENCY ---
+Create an OrderService class to handle the core business logic for order creation. 
+- It must accept a customer email and an array of requested items (product_id, quantity).
+- Wrap the entire process inside a DB::transaction().
+- Crucially, use lockForUpdate() when querying the products to apply a pessimistic row-level lock. This must prevent race conditions and overselling if concurrent requests target the same low-stock product.
+- Deduct the stock, calculate individual taxes, and return the final order instance. Throw an exception if stock is insufficient.
+
+--- PROMPT 3: API CONTROLLERS & VALIDATION ---
+Generate the API Controllers and Routes. Keep the controllers thin.
+- Create a StoreOrderRequest to validate the incoming JSON payload (customer name/email, and an array of items containing product_id and quantity).
+- Create an OrderController with a store() method that injects the OrderService, and a history() method to fetch past orders by email.
+- Create a ProductController with an index() method to list all products, and a lowStock() method that lists products below a configurable threshold (default to 10).
+- Provide the routes/api.php configuration.
+
+--- PROMPT 4: ASYNCHRONOUS QUEUES ---
+Implement a background job to simulate an order confirmation email. 
+- Create a SendOrderConfirmationJob class that implements ShouldQueue. 
+- Do not configure real SMTP. Instead, inside the handle() method, write a success message to the Laravel log file (Log::info). 
+- Update the OrderController or OrderService to dispatch this job immediately after the order is successfully created.
+
+--- PROMPT 5: AUTOMATED TESTING ---
+Write PHPUnit Feature tests to verify the API endpoints.
+- Write a test for the "Happy Path" (successful order creation, correct tax calculation, stock deduction, and job dispatching).
+- Write a test for the "Edge Case" (insufficient stock), asserting that the API correctly rejects the request with a 422 status code and does not alter the database.
